@@ -14,6 +14,7 @@ module Twitter
     def initialize(email, password, options={})
       @config, @config[:email], @config[:password] = {}, email, password
       @api_host = options.delete(:api_host) || 'twitter.com'
+      @protocol = options.delete(:protocol) || "http://"
     end
     
     # Returns an array of statuses for a timeline; Defaults to your friends timeline.
@@ -195,14 +196,14 @@ module Twitter
       def request(path, options={})
         options.reverse_merge!({
           :headers => { "User-Agent" => @config[:email] },
-          :method => :put
+          :method => @protocol == "https://" ? :put : :get
         })
         unless options[:since].blank?
           since = options[:since].kind_of?(Date) ? options[:since].strftime('%a, %d-%b-%y %T GMT') : options[:since].to_s  
           options[:headers]["If-Modified-Since"] = since
         end
         
-        uri = URI.parse("https://#{@api_host}")
+        uri = URI.parse("#{@protocol}#{@api_host}")
         
         begin
           response = Net::HTTP.start(uri.host, 80) do |http|
