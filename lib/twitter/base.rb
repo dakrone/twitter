@@ -195,14 +195,14 @@ module Twitter
       def request(path, options={})
         options.reverse_merge!({
           :headers => { "User-Agent" => @config[:email] },
-          :method => :get
+          :method => :put
         })
         unless options[:since].blank?
           since = options[:since].kind_of?(Date) ? options[:since].strftime('%a, %d-%b-%y %T GMT') : options[:since].to_s  
           options[:headers]["If-Modified-Since"] = since
         end
         
-        uri = URI.parse("http://#{@api_host}")
+        uri = URI.parse("https://#{@api_host}")
         
         begin
           response = Net::HTTP.start(uri.host, 80) do |http|
